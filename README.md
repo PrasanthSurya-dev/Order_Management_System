@@ -11,7 +11,7 @@
 
 ## 🚀 Live Demo
 
-*(Link to your deployed application goes here)*
+*(In Future)*
 
 ---
 
@@ -119,6 +119,7 @@ An at-a-glance dashboard with clickable KPI widgets linking to detailed, interac
 
 
 
+
 ---
 
 ## 🏗️ Project Architecture
@@ -179,52 +180,9 @@ An at-a-glance dashboard with clickable KPI widgets linking to detailed, interac
 ```
 
 ### ER Diagram
+![ER Diagram](https://github.com/user-attachments/assets/d0aab151-543b-47b8-942b-55a8f576b597)
 
-```erDiagram
-    CUSTOMERS {
-      int id PK
-      string username UNIQUE
-      string password
-      string name
-      string address
-      string contact
-    }
-    ORDERS {
-      int id PK
-      int customer_id FK
-      JSON items_json
-      real total
-      string payment_method
-      string status
-      date order_date
-      date delivery_date
-      date actual_delivery_date
-      string cancellation_refund
-    }
-    PRODUCTS {
-      int id PK
-      string name
-      string description
-      real price
-      int stock
-      string image_url
-    }
-    ADMIN {
-      int id PK
-      string username UNIQUE
-      string password
-    }
-    RETURNS {
-      int id PK
-      int order_id FK
-      date return_date
-      string status
-    }
 
-    CUSTOMERS ||--o{ ORDERS : places
-    PRODUCTS ||--o{ ORDERS : included_in
-    ORDERS ||--o{ RETURNS : may_have
-```
 
 ---
 

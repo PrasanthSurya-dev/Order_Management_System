@@ -1,0 +1,57 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Manage Orders{% endblock %}
+{% block page_title %}All Orders{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('admin_dashboard') }}" class="back-link">&larr; Back to Dashboard</a>
+    <div class="filter-bar">
+    <form method="GET" action="{{ url_for('admin_dashboard') }}">
+        <div class="filter-group">
+            <input type="text" name="search" placeholder="Search by Customer or ID..." value="{{ search_query or '' }}">
+            <select name="status">
+                <option value="">All Statuses</option>
+                <option value="Order Received" {% if status_filter == 'Order Received' %}selected{% endif %}>Order Received</option>
+                <option value="Shipped" {% if status_filter == 'Shipped' %}selected{% endif %}>Shipped</option>
+                <option value="In Transit" {% if status_filter == 'In Transit' %}selected{% endif %}>In Transit</option>
+                <option value="Delivered" {% if status_filter == 'Delivered' %}selected{% endif %}>Delivered</option>
+                <option value="Cancelled" {% if status_filter == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+            </select>
+            <button type="submit">Filter</button>
+            <a href="{{ url_for('admin_dashboard') }}" class="reset-link">Reset</a>
+        </div>
+    </form>
+</div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer Name</th>
+                    <th>Items</th>
+                    <th>Address</th>
+                    <th>Payment</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td><a href="{{ url_for('admin_order_detail', order_id=order[0]) }}">#{{ order[0] }}</a></td>
+                    <td>{{ order[1] }}</td>
+                    <td>{{ order[2] }}</td>
+                    <td>{{ order[3] }}</td>
+                    <td>{{ order[4] }}</td>
+                    <td>₹{{ order[6] }}</td>
+                    <td><span class="status-pill status-{{ order[5].lower().replace(' ', '-') }}">{{ order[5] }}</span></td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" style="text-align: center;">No orders found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

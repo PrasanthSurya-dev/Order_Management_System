@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Dashboard{% endblock %} - Orderlla</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="admin-body">
+    <div class="admin-sidebar">
+        <h1 class="admin-logo">Orderlla</h1>
+        <ul class="admin-nav">
+            <li class="{{ 'active' if request.endpoint == 'admin_dashboard' else '' }}"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+            <li class="{{ 'active' if request.endpoint == 'admin_orders' else '' }}"><a href="{{ url_for('admin_orders') }}">Orders</a></li>
+            <li class="{{ 'active' if request.endpoint == 'admin_products' else '' }}"><a href="{{ url_for('admin_products') }}">Products</a></li>
+            <li class="{{ 'active' if 'customer' in request.endpoint else '' }}"><a href="{{ url_for('admin_customers') }}">Customers</a></li>
+            <li class="{{ 'active' if request.endpoint == 'admin_reports' or request.endpoint == 'admin_aov_report' else '' }}"><a href="{{ url_for('admin_reports') }}">Reports</a></li>
+            </ul>
+        <a href="{{ url_for('logout') }}" class="admin-logout">Logout</a>
+    </div>
+    <div class="admin-main">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        <div class="admin-header">
+            <h2>{% block page_title %}{% endblock %}</h2>
+        </div>
+        <div class="admin-content">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+    <script>
+        const flashMessages = document.querySelectorAll('.flash');
+        if (flashMessages.length > 0) {
+            setTimeout(() => {
+                flashMessages.forEach(flash => { flash.classList.add('flash-fade-out'); });
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

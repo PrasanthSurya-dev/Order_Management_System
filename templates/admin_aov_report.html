@@ -1,0 +1,44 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}AOV Report{% endblock %}
+{% block page_title %}Average Order Value (AOV) Analysis{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('admin_dashboard') }}" class="back-link">&larr; Back to Dashboard</a>
+
+    <div class="report-container">
+        <h3>AOV Trend (Last 12 Months)</h3>
+        <canvas id="aovChart"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Line Chart for AOV Trend
+        const ctx = document.getElementById('aovChart');
+        const aovData = {{ aov_trend_data | tojson | safe }};
+        const axisColor = 'rgba(255, 255, 255, 0.7)';
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: aovData.labels,
+                datasets: [{
+                    label: 'Monthly AOV (₹)',
+                    data: aovData.values,
+                    backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: axisColor }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+                    x: { ticks: { color: axisColor }, grid: { color: 'rgba(255, 255, 255, 0.1)' } }
+                },
+                plugins: { legend: { labels: { color: axisColor } } }
+            }
+        });
+    </script>
+{% endblock %}

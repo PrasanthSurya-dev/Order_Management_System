@@ -1,0 +1,60 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Customer Details{% endblock %}
+{% block page_title %}Customer Details: {{ customer[1] }}{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('admin_customers') }}" class="back-link">&larr; Back to All Customers</a>
+
+    <div class="analytics-grid">
+        <div class="widget-card">
+            <h4>Total Orders Placed</h4>
+            <p>{{ analytics.total_orders }}</p>
+        </div>
+        <div class="widget-card">
+            <h4>Lifetime Value</h4>
+            <p>₹{{ "{:,.2f}".format(analytics.total_spent) }}</p>
+        </div>
+        <div class="widget-card">
+            <h4>Average Order Value</h4>
+            <p>₹{{ "{:,.2f}".format(analytics.aov) }}</p>
+        </div>
+    </div>
+    
+    <div class="detail-card" style="margin-top: 30px;">
+        <h3>Customer Information</h3>
+        <p><strong>Customer ID:</strong> #{{ customer[0] }}</p>
+        <p><strong>Name:</strong> {{ customer[1] }}</p>
+        <p><strong>Username:</strong> {{ customer[2] }}</p>
+        <p><strong>Contact:</strong> {{ customer[3] }}</p>
+        <p><strong>Address:</strong> {{ customer[4] }}</p>
+    </div>
+
+    <div class="table-container" style="margin-top: 30px;">
+        <h3>Order History</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Order Date</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td><a href="{{ url_for('admin_order_detail', order_id=order[0]) }}">#{{ order[0] }}</a></td>
+                    <td>{{ order[1] }}</td>
+                    <td>₹{{ order[2] }}</td>
+                    <td><span class="status-pill status-{{ order[3].lower().replace(' ', '-') }}">{{ order[3] }}</span></td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" style="text-align: center;">This customer has no orders.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

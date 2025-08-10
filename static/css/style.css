@@ -1,0 +1,1083 @@
+/* ================================
+   LOGIN & REGISTER PAGE (FINAL THEME)
+=================================== */
+.login-page, .register-page {
+    margin: 0;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #8b1f1b, #a13734);
+    color: white;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.header {
+    text-align: center;
+    margin: 30px 0;
+}
+.header h1 {
+    font-size: 48px;
+    margin-bottom: 5px;
+}
+.header h2 {
+    font-size: 24px;
+    font-weight: normal;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    padding: 20px;
+    flex-wrap: wrap;
+}
+
+.login-box {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 30px;
+    border-radius: 15px;
+    width: 320px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.login-box h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.login-page form input[type="text"],
+.login-page form input[type="password"],
+.register-page form input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: rgba(0,0,0,0.3);
+    color: #fff;
+}
+
+.login-page button,
+.register-page button {
+    width: 100%;
+    padding: 12px;
+    background: #fbbf24;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    color: #2c3e50;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.2s;
+}
+.login-page button:hover,
+.register-page button:hover {
+    background: #f59e0b;
+}
+
+.register-link {
+    text-align: center;
+    margin-top: 20px;
+}
+.register-link a {
+    color: #fbbf24;
+    text-decoration: none;
+}
+.register-link a:hover {
+    text-decoration: underline;
+}
+
+.flash-message {
+    padding: 10px;
+    margin-bottom: 15px;
+    background-color: rgba(231, 76, 60, 0.8);
+    color: white;
+    border-radius: 5px;
+    text-align: center;
+}
+.credentials {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    font-size: 14px;
+    color: rgba(255,255,255,0.7);
+    text-align: center;
+}
+.demo-accounts {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    text-align: center;
+}
+.demo-accounts h4 { margin: 0 0 10px 0; color: #fff; }
+.demo-accounts table { width: 100%; text-align: left; color: rgba(255,255,255,0.8); }
+.demo-accounts th, .demo-accounts td { padding: 5px; }
+
+
+/* ================================
+   DEFAULT DASHBOARD PAGE
+=================================== */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(to right, #f8fafc, #e2e8f0);
+  color: #333;
+}
+
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 180px;
+  height: 100vh;
+  background: #fff;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+}
+
+.sidebar .logo {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 30px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+}
+
+.sidebar li {
+  padding: 12px;
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+}
+
+.sidebar li.active, .sidebar li:hover {
+  background: #edf2f7;
+  font-weight: bold;
+}
+
+.main {
+  margin-left: 200px;
+  padding: 20px;
+}
+
+#welcomeHeader {
+  margin-bottom: 20px;
+}
+
+.products {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.product-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  padding: 10px;
+  width: 200px;
+  text-align: center;
+}
+
+.product-card img {
+  width: 100%;
+  border-radius: 6px;
+}
+
+.out-of-stock img {
+  filter: grayscale(100%);
+  opacity: 0.6;
+}
+
+.cartIcon {
+  position: fixed;
+  top: 20px;
+  right: 30px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.cartIcon span {
+  background: crimson;
+  color: #fff;
+  font-size: 12px;
+  border-radius: 50%;
+  padding: 2px 6px;
+  position: relative;
+  top: -10px;
+  left: -8px;
+}
+
+#cartOverlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 300px;
+  height: 100%;
+  background: #fff;
+  box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.hidden {
+  display: none;
+}
+
+.cartContent h3 {
+  margin-top: 0;
+}
+
+.cartItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.cartItem .quantity {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+#cartTotal {
+  font-weight: bold;
+  margin: 15px 0;
+}
+
+#placeOrderSection button {
+  padding: 8px 15px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#placeOrderSection button:hover {
+  background: #45a049;
+}
+
+#closeCart {
+  margin-top: 10px;
+  padding: 6px 12px;
+  background: #ccc;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+
+/* ================================
+   NEW DASHBOARD PAGE OVERRIDES
+=================================== */
+body.dashboard-page {
+  background: #e71d16;
+  color: white;
+}
+
+.dashboard-page .product-card {
+  background: rgba(0,0,0,0.3);
+  color: white;
+}
+
+.dashboard-page .product-card button {
+  background: #f0ad4e;
+  border: none;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.dashboard-page .product-card button:hover {
+  background: #ec971f;
+}
+
+.dashboard-page .sidebar {
+  background: rgba(0,0,0,0.5);
+  color: white;
+}
+
+.dashboard-page .sidebar li:hover,
+.dashboard-page .sidebar li.active {
+  background: rgba(255,255,255,0.2);
+  font-weight: bold;
+}
+
+.dashboard-page .cartIcon {
+  color: white;
+}
+
+.dashboard-page .cartIcon span {
+  background: #ffc107;
+  color: black;
+}
+
+.dashboard-page #cartOverlay {
+  background: rgba(0,0,0,0.9);
+  color: white;
+}
+
+/* ================================
+   IMPROVEMENTS PER YOUR REQUEST
+=================================== */
+
+/* Softer maroon-light red background */
+body.dashboard-page {
+  background: linear-gradient(135deg, #8b1f1b, #a13734);
+}
+
+/* Yellow highlight for sidebar items, stays inside border */
+.dashboard-page .sidebar li:hover,
+.dashboard-page .sidebar li.active {
+  background: #fbbf24; /* amber yellow */
+  color: black;
+  font-weight: bold;
+}
+
+/* Keep list item inside border */
+.dashboard-page .sidebar li {
+  width: calc(100% - 24px);
+  margin: 0 12px;
+}
+
+/* Logout always at bottom */
+.dashboard-page .sidebar {
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-page .sidebar ul:last-child {
+  margin-top: auto;
+}
+
+.order-history-box {
+    background: rgba(255,255,255,0.1);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    color: white;
+}
+.order-history-box h4 {
+    margin: 0 0 10px 0;
+}
+.order-history-box hr {
+    border: 0;
+    height: 1px;
+    background: rgba(255,255,255,0.3);
+    margin: 10px 0;
+}
+
+/* ================================
+   ADJUSTED LOGOUT POSITION
+=================================== */
+.sidebar a {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.sidebar a .logout {
+  padding: 12px;
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+  margin-top: auto;
+  margin-bottom: 60px; /* move it up from the absolute bottom */
+}
+
+.sidebar a .logout:hover {
+  background: rgba(255,255,255,0.2);
+  font-weight: bold;
+}
+
+/* Warning under product card */
+.product-warning {
+  font-size: 12px;
+  color: #ffc107; /* amber yellow */
+  margin-top: 5px;
+}
+
+/* Cancel / Return buttons in order history */
+.order-history-box button {
+  background: #f0ad4e;
+  border: none;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+.order-history-box button:hover {
+  background: #ec971f;
+}
+
+/* ================================
+   CONFIRMATION PAGE
+=================================== */
+.confirmation-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.confirmation-box {
+    background: rgba(0,0,0,0.3);
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.confirmation-box h1 {
+    margin: 0 0 15px 0;
+    color: #fff;
+}
+
+.confirmation-box p {
+    margin: 0 0 10px 0;
+    font-size: 1.1em;
+    color: #ecf0f1;
+}
+
+.confirmation-box .subtle-text {
+    font-size: 0.9em;
+    color: #bdc3c7;
+    margin-bottom: 30px;
+}
+
+.confirmation-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+.btn-secondary {
+    background-color: #7f8c8d;
+    color: white;
+}
+
+
+
+.order-content-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+.btn-cancel-order {
+    background-color: #f0ad4e; /* Yellow highlight */
+    color: #333;
+    font-weight: bold;
+    flex-shrink: 0; /* Prevent the button from shrinking */
+    margin-left: 20px;
+}
+/* ================================
+   ADMIN PANEL LAYOUT (DARK THEME)
+=================================== */
+.admin-body {
+    background: linear-gradient(135deg, #8b1f1b, #a13734);
+    color: #ecf0f1;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    margin: 0;
+}
+
+.admin-sidebar {
+    width: 240px;
+    background: rgba(0,0,0,0.5);
+    color: #ecf0f1;
+    height: 100vh;
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-logo {
+    text-align: center;
+    padding: 20px 0;
+    font-size: 28px;
+    background: rgba(0,0,0,0.7);
+    margin: 0;
+    font-weight: bold;
+}
+
+.admin-nav {
+    list-style: none;
+    padding: 20px 0;
+    margin: 0;
+    flex-grow: 1;
+}
+
+.admin-nav li a {
+    display: block;
+    padding: 15px 20px;
+    color: #ecf0f1;
+    text-decoration: none;
+    transition: background 0.2s;
+    border-left: 4px solid transparent;
+}
+
+.admin-nav li.active a, .admin-nav li a:hover {
+    background: #fbbf24; /* Amber Yellow Highlight */
+    color: #2c3e50;
+    border-left: 4px solid #f59e0b; /* Darker Amber */
+}
+
+.admin-logout {
+    padding: 20px;
+    text-align: center;
+    background: rgba(0,0,0,0.7);
+    color: #ecf0f1;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.admin-logout:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.admin-main {
+    margin-left: 240px;
+    width: calc(100% - 240px);
+    padding: 30px;
+}
+
+.admin-header h2 {
+    margin: 0 0 20px 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.admin-content {
+    background: rgba(0,0,0,0.3);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+/* Table Styles (Dark Theme) */
+.table-container {
+    overflow-x: auto;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    text-align: left;
+}
+th {
+    background-color: rgba(255,255,255,0.1);
+    font-weight: 600;
+    color: #fff;
+}
+tbody tr {
+    color: #ecf0f1;
+}
+tbody tr:hover {
+    background-color: rgba(255,255,255,0.05);
+}
+
+/* Status Pill Styles (No changes needed, they work well on a dark background) */
+.status-pill {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+    text-transform: capitalize;
+}
+.status-order-received { background-color: #3498db; }
+.status-shipped { background-color: #f39c12; }
+.status-in-transit { background-color: #9b59b6; }
+.status-delivered { background-color: #2ecc71; }
+.status-cancelled { background-color: #e74c3c; }
+
+/* ================================
+   ADMIN ORDER DETAIL PAGE (DARK THEME FIX)
+=================================== */
+.back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #fbbf24; /* FIXED: Use high-contrast amber yellow for links */
+    text-decoration: none;
+    font-weight: bold;
+}
+.back-link:hover {
+    text-decoration: underline;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.detail-card {
+    background: #fff; 
+    padding: 20px;
+    border-radius: 8px;
+    color: #333; 
+}
+.detail-card.full-width {
+    grid-column: 1 / -1;
+}
+.detail-card h3 {
+    margin-top: 0;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+.detail-card p {
+    margin: 0 0 10px 0;
+    line-height: 1.6;
+}
+
+.item-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.item-list li {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+.item-list li:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+/* ================================
+   ADMIN TABLE LINK FIX
+=================================== */
+.admin-content table a {
+    color: #fbbf24; 
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.admin-content table a:hover {
+    text-decoration: underline;
+    color: #f59e0b;
+}
+
+/* ================================
+   ADMIN FORMS & MESSAGES
+=================================== */
+.form-divider {
+    border: 0;
+    border-top: 1px solid #eee;
+    margin: 20px 0;
+}
+
+.update-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.update-form label {
+    font-weight: bold;
+}
+
+.update-form select {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    flex-grow: 1;
+}
+
+.update-form button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #27ae60;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.update-form button:hover {
+    background-color: #229954;
+}
+
+/* Flash Messages */
+.flash-messages {
+    margin-bottom: 20px;
+}
+
+.flash {
+    padding: 15px;
+    border-radius: 5px;
+    color: #fff;
+    font-weight: bold;
+    opacity: 1;
+    transition: opacity 0.5s ease-out;
+}
+
+.flash-fade-out {
+    opacity: 0;
+}
+
+.flash-success {
+    background-color: #2ecc71;
+}
+.flash-error {
+    background-color: #e74c3c;
+}
+.return-btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #e67e22; 
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* ================================
+   ADMIN FILTER BAR (FINAL HTML/CSS FIX)
+=================================== */
+.filter-bar {
+    margin-bottom: 20px;
+}
+
+.filter-group {
+    display: flex; /* This will now correctly align the items */
+    gap: 10px;
+    align-items: center;
+}
+
+.filter-bar input[type="text"],
+.filter-bar select {
+    padding: 8px 10px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: rgba(0,0,0,0.3);
+    color: #fff;
+}
+
+.filter-bar input[type="text"] {
+    flex-grow: 1; /* Allow search to take up extra space */
+    min-width: 250px;
+}
+
+.filter-bar button,
+.reset-link {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.filter-bar button {
+    background-color: #fbbf24;
+    color: #2c3e50;
+}
+
+.reset-link {
+    color: #fff;
+    background-color: #555;
+}
+
+/* ================================
+   ADMIN ACTION BUTTONS (FINAL FIX)
+=================================== */
+.action-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.action-buttons form {
+    margin: 0;
+}
+
+.btn {
+    display: block;
+    width: 100%;
+    padding: 6px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+.btn-edit {
+    background-color: #3498db;
+    color: white !important; /* This ensures the text is always white */
+}
+
+.btn-delete {
+    background-color: #e74c3c;
+    color: white !important; /* This ensures the text is always white */
+}
+
+/* ================================
+   ADMIN ADD/EDIT FORMS (DARK THEME)
+=================================== */
+.form-container {
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 30px; /* Added margin to separate from table */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ecf0f1; /* White text */
+}
+
+.form-container h3 {
+    margin-top: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
+    color: #fff; /* White heading */
+}
+
+.form-container form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
+
+.form-container input,
+.form-container textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    font-size: 14px;
+    box-sizing: border-box;
+    background-color: rgba(0, 0, 0, 0.5); /* Dark input background */
+    color: #fff; /* White input text */
+}
+
+.form-container button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #27ae60; /* Green button */
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    justify-self: start;
+    transition: background-color 0.2s;
+}
+
+.form-container button:hover {
+    background-color: #229954;
+}
+
+.widget-grid {
+    display: grid;
+    /* This creates exactly two columns of equal width */
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 20px;
+    margin-bottom: 30px;
+}
+/* Style the new link wrapper */
+.widget-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.widget-card {
+    background: rgba(0,0,0,0.3); /* Match dark theme */
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.widget-card:hover {
+    transform: translateY(-5px); /* Add a hover effect */
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.widget-card h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #ccc; /* Lighter text for dark theme */
+    font-weight: 600;
+}
+
+.widget-card p {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff; /* White text for dark theme */
+}
+/* Table row highlight */
+tbody tr.highlight {
+    background-color: #fff !important;
+    color: #333;
+    font-weight: bold;
+}
+/* Report Page Additions */
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.date-filter-form select {
+    padding: 8px 10px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: rgba(0,0,0,0.3);
+    color: #fff;
+}
+/* Comparison Widget Styles */
+.widget-comparison {
+    font-size: 13px;
+    margin-top: 8px;
+}
+.widget-comparison.positive {
+    color: #2ecc71; /* Green */
+}
+.widget-comparison.negative {
+    color: #e74c3c; /* Red */
+}
+.widget-comparison .arrow {
+    font-size: 16px;
+}
+/* ================================
+   PIE CHART WITH STATIC LEGEND
+=================================== */
+.chart-with-legend-container {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.chart-container {
+    flex-grow: 1;
+    max-width: 400px; /* Adjust as needed */
+}
+
+.static-legend {
+    flex-shrink: 0;
+    background-color: rgba(0,0,0,0.2);
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.static-legend h4 {
+    margin: 0 0 10px 0;
+    text-align: center;
+    color: #fff;
+}
+
+.static-legend ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.static-legend li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.legend-color-box {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 10px;
+    border-radius: 3px;
+}
+/* Customer Dashboard Flash Messages */
+/* Customer Dashboard Flash Messages */
+.flash-messages-customer {
+    margin-bottom: 20px;
+    padding: 0 20px;
+    transition: opacity 0.5s ease-out;
+}
+.flash-messages-customer.flash-fade-out {
+    opacity: 0;
+}
+
+/* Payment Method Report */
+.payment-distribution-container {
+    display: grid;
+    gap: 15px;
+}
+
+.payment-method-item {
+    color: #fff;
+}
+
+.payment-method-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.payment-method-name {
+    font-weight: bold;
+}
+
+.progress-bar-background {
+    background-color: rgba(0,0,0,0.3);
+    border-radius: 5px;
+    height: 10px;
+    width: 100%;
+}
+
+.progress-bar-foreground {
+    background-color: #fbbf24; /* Amber Yellow */
+    height: 100%;
+    border-radius: 5px;
+}
+/* Report Page Layout */
+.report-container {
+    margin-top: 40px; /* Increased from 30px for better spacing */
+}
+/* Refund Status */
+.refund-status {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: rgba(52, 152, 219, 0.2);
+    border-left: 4px solid #3498db;
+    color: #f1f1f1;
+    font-size: 14px;
+}
+/* Customer Analytics Grid */
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}

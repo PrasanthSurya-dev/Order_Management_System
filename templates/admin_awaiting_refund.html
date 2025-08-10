@@ -1,0 +1,35 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Awaiting Refund{% endblock %}
+{% block page_title %}Orders Awaiting Refund{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('admin_dashboard') }}" class="back-link">&larr; Back to Dashboard</a>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer Name</th>
+                    <th>Refund Amount</th>
+                    <th>Order Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td><a href="{{ url_for('admin_order_detail', order_id=order[0]) }}">#{{ order[0] }}</a></td>
+                    <td>{{ order[1] }}</td>
+                    <td>₹{{ order[2] }}</td>
+                    <td>{{ order[3] }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" style="text-align: center;">No orders are currently awaiting a refund.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

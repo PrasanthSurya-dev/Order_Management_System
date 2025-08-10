@@ -1,0 +1,49 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard Overview{% endblock %}
+
+{% block content %}
+    <div class="widget-grid">
+        <a href="{{ url_for('admin_reports') }}" class="widget-link">
+            <div class="widget-card">
+                <h4>Total Sales Today</h4>
+                <p>₹{{ "{:,.2f}".format(sales_today) }}</p>
+            </div>
+        </a>
+        <a href="{{ url_for('admin_orders', filter_date='today') }}" class="widget-link">
+            <div class="widget-card">
+                <h4>New Orders Today</h4>
+                <p>{{ orders_today }}</p>
+            </div>
+        </a>
+        <a href="{{ url_for('admin_orders', filter_status='pending') }}" class="widget-link">
+            <div class="widget-card">
+                <h4>Pending Orders</h4>
+                <p>{{ pending_orders }}</p>
+            </div>
+        </a>
+        <a href="{{ url_for('admin_products', filter_stock='low') }}" class="widget-link">
+            <div class="widget-card">
+                <h4>Items Low in Stock</h4>
+                <p>{{ low_stock_items }}</p>
+            </div>
+        </a>
+        <a href="{{ url_for('admin_aov_report') }}" class="widget-link">
+            <div class="widget-card">
+                <h4>Average Order Value</h4>
+                <p>₹{{ "{:,.2f}".format(average_order_value) }}</p>
+                <div class="widget-comparison {{ 'positive' if aov_change >= 0 else 'negative' }}">
+                    <span class="arrow">{% if aov_change >= 0 %}▲{% else %}▼{% endif %}</span>
+                    {{ "%.1f"|format(aov_change|abs) }}% vs last month
+                </div>
+            </div>
+        </a>
+        <a href="{{ url_for('admin_awaiting_refund') }}" class="widget-link">
+            <div class="widget-card">
+                <h4>Awaiting Refund</h4>
+                <p>{{ awaiting_refund_count }}</p>
+            </div>
+        </a>
+    </div>
+{% endblock %}

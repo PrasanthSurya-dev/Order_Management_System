@@ -1,0 +1,160 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Reports{% endblock %}
+{% block page_title %}Business Reports{% endblock %}
+
+{% block content %}
+    <div class="report-container">
+        <div class="report-header">
+            <h3>Sales Data</h3>
+            <form method="GET" action="{{ url_for('admin_reports') }}" class="date-filter-form">
+                <select name="range" onchange="this.form.submit()">
+                    <option value="7days" {% if active_range == '7days' %}selected{% endif %}>Last 7 Days</option>
+                    <option value="30days" {% if active_range == '30days' %}selected{% endif %}>Last 30 Days</option>
+                    <option value="all" {% if active_range == 'all' %}selected{% endif %}>All Time</option>
+                </select>
+            </form>
+        </div>
+        <canvas id="salesChart"></canvas>
+    </div>
+
+    <div class="report-container" style="margin-top: 30px;">
+    <h3>Order Status Distribution</h3>
+    
+    <div class="chart-with-legend-container">
+        <div class="chart-container">
+             <canvas id="statusPieChart"></canvas>
+        </div>
+        
+        <div class="static-legend">
+            <h4>Color Key</h4>
+            <ul>
+                <li><span class="legend-color-box" style="background-color: #3498db;"></span> Order Received</li>
+                <li><span class="legend-color-box" style="background-color: #f39c12;"></span> Shipped</li>
+                <li><span class="legend-color-box" style="background-color: #9b59b6;"></span> In Transit</li>
+                <li><span class="legend-color-box" style="background-color: #2ecc71;"></span> Delivered</li>
+                <li><span class="legend-color-box" style="background-color: #e74c3c;"></span> Cancelled</li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    <div class="report-container" style="margin-top: 30px;">
+    <h3>Payment Method Distribution</h3>
+    <div class="payment-distribution-container">
+        {% for payment in payment_distribution %}
+        <div class="payment-method-item">
+            <div class="payment-method-header">
+                <span class="payment-method-name">{{ payment.method }}</span>
+                <span class="payment-method-percent">{{ payment.percentage }}%</span>
+            </div>
+            <div class="progress-bar-background">
+                <div class="progress-bar-foreground" style="width: {{ payment.percentage|string }}%;"></div>
+            </div>
+        </div>
+        {% else %}
+        <p>No payment data available.</p>
+        {% endfor %}
+    </div>
+</div>
+    <div class="report-container" style="margin-top: 30px;">
+        <h3>Top 10 Best-Selling Products</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Total Quantity Sold</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in top_products %}
+                    <tr>
+                        <td>{{ product[0] }}</td>
+                        <td>{{ product[1] }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="2" style="text-align: center;">No sales data available yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // Bar Chart for Sales Data
+        const ctx = document.getElementById('salesChart');
+        const salesData = {{ sales_data | tojson | safe }};
+        const axisColor = 'rgba(255, 255, 255, 0.7)';
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: salesData.labels,
+                datasets: [{
+                    label: 'Daily Sales (₹)',
+                    data: salesData.values,
+                    backgroundColor: 'rgba(251, 191, 36, 0.6)',
+                    borderColor: 'rgba(251, 191, 36, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: axisColor },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: axisColor },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: { color: axisColor }
+                    }
+                }
+            }
+        });
+
+        // Pie Chart for Order Status
+        const pieCtx = document.getElementById('statusPieChart');
+        const pieData = {{ pie_data | tojson | safe }};
+        const pieAxisColor = 'rgba(255, 255, 255, 0.9)';
+
+        new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: pieData.labels,
+                datasets: [{
+                    label: 'Orders',
+                    data: pieData.values,
+                    backgroundColor: [
+                        'rgba(52, 152, 219, 0.8)', // Order Received (Blue)
+                        'rgba(243, 156, 18, 0.8)', // Shipped (Orange)
+                        'rgba(155, 89, 182, 0.8)',  // In Transit (Purple)
+                        'rgba(46, 204, 113, 0.8)',  // Delivered (Green)
+                        'rgba(231, 76, 60, 0.8)'    // Cancelled (Red)
+                    ],
+                    borderColor: 'rgba(44, 62, 80, 0.5)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { color: pieAxisColor }
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %}

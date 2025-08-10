@@ -1,0 +1,74 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Order #{{ order[0] }}{% endblock %}
+
+{% block page_title %}Order Details{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('admin_orders') }}" class="back-link">&larr; Back to All Orders</a>
+    
+    <div class="detail-grid">
+        <div class="detail-card">
+            <h3>Order Information</h3>
+            <p><strong>Order ID:</strong> #{{ order[0] }}</p>
+            <p><strong>Status:</strong> <span class="status-pill status-{{ order[5].lower().replace(' ', '-') }}">{{ order[5] }}</span></p>
+            <p><strong>Total Amount:</strong> ₹{{ order[2] }}</p>
+            <p><strong>Payment Method:</strong> {{ order[3] }}</p>
+            
+            {% if order[9] %}
+                <p><strong>Delivered On:</strong> {{ order[9] }}</p>
+            {% else %}
+                <p><strong>Est. Delivery Date:</strong> {{ order[4] }}</p>
+            {% endif %}
+
+            <hr class="form-divider">
+
+            {% if order[5] != 'Delivered' and order[5] != 'Cancelled' %}
+                <form action="{{ url_for('update_order_status') }}" method="POST" class="update-form">
+                    <input type="hidden" name="order_id" value="{{ order[0] }}">
+                    <label for="status">Change Order Status:</label>
+                    <select name="status" id="status">
+                        <option value="Order Received" {% if order[5] == 'Order Received' %}selected{% endif %}>Order Received</option>
+                        <option value="Shipped" {% if order[5] == 'Shipped' %}selected{% endif %}>Shipped</option>
+                        <option value="In Transit" {% if order[5] == 'In Transit' %}selected{% endif %}>In Transit</option>
+                        <option value="Delivered" {% if order[5] == 'Delivered' %}selected{% endif %}>Delivered</option>
+                    </select>
+                    <button type="submit">Update Status</button>
+                </form>
+
+            {% elif order[5] == 'Delivered' %}
+                <p>This order has been delivered.</p>
+
+            {% else %} {% if order[3] != 'Cash on Delivery' and (order[10] is none or 'initiated' not in order[10]) %}
+                    <p>This order requires a refund to be processed.</p>
+                    <div class="update-form" style="margin-top: 15px;">
+                        <form action="{{ url_for('process_refund') }}" method="POST" onsubmit="return confirm('Confirm refund of ₹{{ order[2] }}?');">
+                            <input type="hidden" name="order_id" value="{{ order[0] }}">
+                            <button type="submit" class="btn return-btn">Refund ₹{{ order[2] }}</button>
+                        </form>
+                    </div>
+                {% elif order[3] != 'Cash on Delivery' %}
+                     <p>Refund has been successfully initiated for this order.</p>
+                {% else %}
+                    <p>This was a Cash on Delivery order and has been cancelled.</p>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <div class="detail-card">
+            <h3>Customer Details</h3>
+            <p><strong>Name:</strong> {{ order[6] }}</p>
+            <p><strong>Address:</strong> {{ order[7] }}</p>
+            <p><strong>Contact:</strong> {{ order[8] }}</p>
+        </div>
+
+        <div class="detail-card full-width">
+            <h3>Items in this Order</h3>
+            <ul class="item-list">
+                {% for item in items %}
+                <li>{{ item.name }} &mdash; <strong>Quantity: {{ item.quantity }}</strong></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}

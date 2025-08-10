@@ -65,8 +65,8 @@ Orderlla is a unified platform that gives businesses complete control over their
 ### Installation & Setup
 
 ```bash
-git clone https://github.com/<your-username>/orderlla.git
-cd orderlla
+git clone https://github.com/<your-username>/orderlla-oms.git
+cd orderlla-oms
 ```
 
 ### 3  Create a Virtual Environment

@@ -1,9 +1,10 @@
-# Orderlla – Full-Stack Order Management System (OMS)
+# Orderlla – Order Management System (OMS)
 
 > A comprehensive digital solution for small businesses to manage orders, inventory, and analytics—built with Python/Flask and Vanilla JavaScript.
 
 [![Python Version](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)  
-[![Flask Version](https://img.shields.io/badge/flask-3.0-black.svg)](https://flask.palletsprojects.com/)  
+[![Flask](https://img.shields.io/badge/Flask-2.0+-green.svg)](https://flask.palletsprojects.com)    
+[![SQLite](https://img.shields.io/badge/SQLite-3.0+-lightgrey.svg)](https://sqlite.org)  
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
@@ -16,27 +17,26 @@
 
 ## 📋 Project Overview
 
-Orderlla replaces manual, spreadsheet-based order tracking with a unified platform that handles product management, order lifecycle, and real-time analytics.
+Orderlla is a unified platform that gives businesses complete control over their sales by centralizing the entire order lifecycle—from product management and order tracking to real-time sales analytics—eliminating the errors and inefficiencies of manual, spreadsheet-based methods.
 
-**Target Audience:** Potential employers and technical reviewers assessing full-stack development proficiency.
+**Target Audience:** This project is a portfolio piece aimed at potential employers and technical reviewers, showcasing the ability to build a complete, data-driven web application from the ground up.
 
-**Unique Highlights:**
-- **Hybrid Frontend Architecture**: SSR-based admin panel with an SPA-style customer dashboard.
-- **Asynchronous Background Tasks**: Hourly automated order-status updates.
-- **Data-Driven Analytics**: Interactive KPI widgets and Chart.js-powered reports.
+**Key Differentiators:**
 
+- **Hybrid Frontend Architecture**:  Demonstrates architectural flexibility by combining a classic, server-rendered admin panel (for robust control) with a dynamic, API-driven customer dashboard (for a fast, modern user experience).
+- **Asynchronous Processing**: Features an independent background thread that simulates real-world cron jobs by automatically updating order statuses, showcasing an understanding of processes outside the standard request-response cycle.
+- **Business Intelligence Engine**: Moves beyond simple data entry by providing a rich analytics and reporting suite, including interactive KPI widgets and Chart.js-powered visualizations to help business owners make informed, data-driven decisions.
 ---
 
 ## ✨ Features
 
-- **Customer Authentication**: Secure registration & login with hashed passwords.  
+- **Authentication & Authorization**: Features a role-based login for Customers and Admins with secure, user-specific data access.
 - **Dynamic Product Catalog**: Browse, filter, and view detailed product listings.  
 - **Real-Time Shopping Cart**: Add, update, and remove items without page reloads.  
 - **Full Order Workflow**: Place, track, and cancel orders; inventory auto-restores on cancellations.  
 - **Live Order History**: Track status from “Order Received” → “Delivered.”  
 - **Admin Dashboard**: CRUD operations for products, orders, and customers.  
-- **Interactive Analytics**: KPI widgets (Sales, AOV, Pending Orders) link to detailed Chart.js visualizations.  
-- **Returns Management Ready**: Database schema includes a `returns` table for future enhancements.
+- **Interactive Analytics**: KPI widgets (Sales, AOV, Pending Orders) link to detailed Chart.js visualizations.
 
 ---
 
@@ -65,31 +65,39 @@ Orderlla replaces manual, spreadsheet-based order tracking with a unified platfo
 ### Installation & Setup
 
 ```bash
-# 1. Clone
-git clone https://github.com/<your-username>/orderlla-oms.git
-cd orderlla-oms
+git clone https://github.com/<your-username>/orderlla.git
+cd orderlla
+```
 
-# 2. Virtual Environment
+### 3  Create a Virtual Environment
+```bash
 python -m venv .venv
 # Windows
 .venv\Scripts\activate
 # macOS/Linux
 source .venv/bin/activate
+```
 
-# 3. Dependencies
+### 4  Install Dependencies
+```bash
 pip install -r requirements.txt
+```
 
-# 4. Database Initialization (one-time)
+### 5  Set Up the Database
+```bash
+# Creates database.db and seeds sample data
 sqlite3 database.db < populate_data.sql
-# PowerShell:
+# PowerShell alternative
 Get-Content populate_data.sql | sqlite3 database.db
+```
 
-# 5. Run Locally
+### 6  Run the Application
+```bash
 python app.py
 ```
 
 Open your browser at **http://127.0.0.1:8080**  
-_Default admin: `admin` / `admin123` (change immediately!)_
+_Default admin: `admin` / `adminpass`
 
 ---
 
@@ -97,11 +105,19 @@ _Default admin: `admin` / `admin123` (change immediately!)_
 
 ### Customer Dashboard  
 Experience a seamless, app-style interface for browsing, cart management, and order tracking without reloads.  
-*(Insert GIF/screenshot here)*
+*Customer Dashboard* <img width="2880" height="1520" alt="image" src="https://github.com/user-attachments/assets/1818fb04-3adb-4c18-b680-596b8f0eafa6" />
+*Order History* <img width="2878" height="1542" alt="image" src="https://github.com/user-attachments/assets/418b958f-1af6-4f9f-92a9-2b3c8eb31346" />
+
+
 
 ### Admin Analytics  
 An at-a-glance dashboard with clickable KPI widgets linking to detailed, interactive reports.  
-*(Insert GIF/screenshot here)*
+*Sales Data* <img width="2880" height="1530" alt="image" src="https://github.com/user-attachments/assets/40cb7e3e-95e4-4fd8-901c-7f7a4085c079" />
+*Order Status Distribution* <img width="2878" height="1532" alt="image" src="https://github.com/user-attachments/assets/ee8f8f43-4fc9-47ee-b57d-3b70df51ad34" />
+*Payment Method Distribution* <img width="2876" height="1524" alt="image" src="https://github.com/user-attachments/assets/099fcddf-b3a3-463c-9fc9-28f2b491051f" />
+
+
+
 
 ---
 
@@ -110,21 +126,32 @@ An at-a-glance dashboard with clickable KPI widgets linking to detailed, interac
 ### Folder Structure
 
 ```
-/
+/Orderlla-OMS
 ├── app.py
-├── database.db
 ├── populate_data.sql
 ├── requirements.txt
+├── README.md
 ├── static/
-│   ├── css/style.css
-│   ├── images/… 
-│   └── js/customer_dashboard.js
+│   ├── css/
+│   │   └── style.css
+│   └── js/
+│       └── customer_dashboard.js
 └── templates/
+    ├── admin_aov_report.html
+    ├── admin_awaiting_refund.html
     ├── admin_base.html
+    ├── admin_customers_list.html
+    ├── admin_customer_detail.html
     ├── admin_dashboard.html
-    ├── … (other admin pages)
+    ├── admin_edit_product.html
+    ├── admin_orders.html
+    ├── admin_order_detail.html
+    ├── admin_products.html
+    ├── admin_reports.html
+    ├── cancel_confirmation.html
     ├── customer_dashboard.html
-    └── login.html, register.html, etc.
+    ├── login.html
+    └── register.html
 ```
 
 ---
@@ -201,15 +228,6 @@ An at-a-glance dashboard with clickable KPI widgets linking to detailed, interac
 
 ---
 
-## 🔐 Authentication & Security
-
-- Passwords hashed with **Werkzeug** (PBKDF2-SHA256).  
-- Session data signed by `app.secret_key`.  
-- Route protection via Flask session decorators.  
-- CSRF mitigation via session tokens (future: Flask-WTF).
-
----
-
 ## 🔄 Business Logic & Reports
 
 - **Automated Status Updates**: Hourly thread marks "In Transit" → "Delivered".  
@@ -271,8 +289,7 @@ MIT License – see [LICENSE](LICENSE).
 
 ## 📫 Contact
 
-**Portfolio:** <your-portfolio-url>  
-**LinkedIn:** <your-linkedin>  
-**Email:** <your-email>  
+**LinkedIn:** https://www.linkedin.com/in/suryaprasanth001/  
+**Email:** suryaprasanthmedidi3@gmail.com
 
 > ⭐ If you find Orderlla useful, please give it a star!

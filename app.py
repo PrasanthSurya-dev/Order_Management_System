@@ -1,3 +1,5 @@
+import os
+import psycopg2
 import sqlite3
 import json
 import threading
@@ -30,10 +32,21 @@ def init_db():
         c.execute('INSERT OR IGNORE INTO admin (id, username, password) VALUES (1, "admin", "adminpass")')
         conn.commit()
 
+def get_db_connection():
+    # Render (and other hosts) sets a DATABASE_URL environment variable
+    db_url = os.environ.get('DATABASE_URL')
+    if db_url:
+        # Connect to the live PostgreSQL database
+        conn = psycopg2.connect(db_url)
+    else:
+        # Connect to the local SQLite database file
+        conn = sqlite3.connect(DATABASE)
+    return conn
+
 # --- BACKGROUND TASK ---
 def update_order_statuses():
     while True:
-        with sqlite3.connect(DATABASE) as conn:
+        with get_db_connection() as conn:
             c = conn.cursor()
             today = datetime.now().date()
             c.execute("SELECT id, delivery_date FROM orders WHERE status = 'In Transit'")
@@ -47,7 +60,7 @@ def update_order_statuses():
 
 def migrate_old_orders():
     # This is a new one-time function to fix your old data
-    with sqlite3.connect(DATABASE) as conn:
+    with get_db_connection() as conn:
         c = conn.cursor()
         # Find all orders that are missing an order_date
         c.execute("SELECT id, delivery_date FROM orders WHERE order_date IS NULL")
@@ -77,8 +90,8 @@ def login():
     # This forces the login attempt to be lowercase
     username = request.form['username'].lower()
     password = request.form['password']
-    
-    with sqlite3.connect(DATABASE) as conn:
+
+    with get_db_connection() as conn:
         user = conn.execute('SELECT id FROM customers WHERE username=? AND password=?', (username, password)).fetchone()
         if user:
             session['user_id'] = user[0]
@@ -94,7 +107,7 @@ def login():
 def register():
     if request.method == 'POST':
         try:
-            with sqlite3.connect(DATABASE) as conn:
+            with get_db_connection() as conn:
                 # This forces the username to be saved as lowercase
                 username = request.form['username'].lower()
                 conn.execute('INSERT INTO customers (username, password, name, address, contact) VALUES (?, ?, ?, ?, ?)',
@@ -102,7 +115,7 @@ def register():
                 conn.commit()
             flash('Registration successful! Please login.', 'success')
             return redirect(url_for('index'))
-        except sqlite3.IntegrityError:
+        except psycopg2.IntegrityError:
             flash('Username already exists.', 'error')
     return render_template('register.html')
 
@@ -115,21 +128,21 @@ def logout():
 @app.route('/customer')
 def customer_dashboard():
     if 'user_id' not in session: return redirect(url_for('index'))
-    with sqlite3.connect(DATABASE) as conn:
+    with get_db_connection() as conn:
         customer = conn.execute('SELECT name, address, contact FROM customers WHERE id=?', (session['user_id'],)).fetchone()
     return render_template('customer_dashboard.html', customer_name=customer[0], customer_address=customer[1], customer_contact=customer[2])
 
 # --- API ROUTES (for JavaScript) ---
 @app.route('/get_products')
 def get_products():
-    with sqlite3.connect(DATABASE) as conn:
+    with get_db_connection() as conn:
         products = conn.execute('SELECT id, name, price, stock, image_url FROM products').fetchall()
     return jsonify([{'id': r[0], 'name': r[1], 'price': r[2], 'stock': r[3], 'image_url': r[4]} for r in products])
 
 @app.route('/get_orders')
 def get_orders():
     if 'user_id' not in session: return jsonify([])
-    with sqlite3.connect(DATABASE) as conn:
+    with get_db_connection() as conn:
         c = conn.cursor()
         orders_data = c.execute('''SELECT id, items, total, payment_method, delivery_date, 
                                         status, actual_delivery_date, cancellation_refund 
@@ -166,8 +179,8 @@ def place_order():
     order_date = datetime.now().strftime("%Y-%m-%d")
     # Set the initial ESTIMATED delivery date to 4 days in the future
     delivery_date = (datetime.now() + timedelta(days=4)).strftime("%Y-%m-%d")
-    
-    with sqlite3.connect(DATABASE) as conn:
+
+    with get_db_connection() as conn:
         for pid, qty in data['cart'].items():
             conn.execute('UPDATE products SET stock = stock - ? WHERE id = ?', (qty, pid))
         
@@ -190,7 +203,7 @@ def process_cancellation():
         return redirect(url_for('index'))
 
     order_id = request.form['order_id']
-    with sqlite3.connect(DATABASE) as conn:
+    with get_db_connection() as conn:
         order_row = conn.execute('SELECT items, payment_method FROM orders WHERE id=? AND customer_id=?', (order_id, session['user_id'])).fetchone()
         if not order_row:
             flash("Could not cancel order.", "error")
@@ -220,7 +233,7 @@ def process_refund():
         return redirect(url_for('index'))
     
     order_id = request.form['order_id']
-    with sqlite3.connect(DATABASE) as conn:
+    with get_db_connection() as conn:
         # Update the reason to show the refund has been processed
         new_reason = "Refund initiated successfully to your account."
         conn.execute("UPDATE orders SET cancellation_refund = ? WHERE id = ?", (new_reason, order_id))
@@ -233,7 +246,7 @@ def process_refund():
 @app.route('/admin/dashboard')
 def admin_dashboard():
     if 'admin_id' not in session: return redirect(url_for('index'))
-    with sqlite3.connect(DATABASE) as conn:
+    with get_db_connection() as conn:
         c = conn.cursor()
         today = datetime.now()
         today_str = today.strftime("%Y-%m-%d")
@@ -283,8 +296,8 @@ def admin_orders():
     status_filter = request.args.get('status', '')
     filter_date = request.args.get('filter_date', '')
     filter_status = request.args.get('filter_status', '')
-    
-    with sqlite3.connect(DATABASE) as conn:
+
+    with get_db_connection() as conn:
         query = 'SELECT o.id, c.name, o.items, c.address, o.payment_method, o.status, o.total FROM orders o JOIN customers c ON o.customer_id = c.id'
         conditions = []
         params = []
@@ -320,7 +333,7 @@ def admin_orders():
 @app.route('/admin/order/<int:order_id>')
 def admin_order_detail(order_id):
     if 'admin_id' not in session: return redirect(url_for('index'))
-    with sqlite3.connect(DATABASE) as conn:
+    with get_db_connection() as conn:
         order = conn.execute('''SELECT 
                                 o.id, o.items, o.total, o.payment_method, o.delivery_date, 
                                 o.status, c.name, c.address, c.contact, o.actual_delivery_date, o.cancellation_refund 
@@ -342,8 +355,8 @@ def admin_order_detail(order_id):
 def update_order_status():
     if 'admin_id' not in session: return redirect(url_for('index'))
     order_id, new_status = request.form['order_id'], request.form['status']
-    
-    with sqlite3.connect(DATABASE) as conn:
+
+    with get_db_connection() as conn:
         # If the admin sets the status to "Delivered", save today's date
         if new_status == 'Delivered':
             actual_date = datetime.now().strftime("%Y-%m-%d")
@@ -359,7 +372,7 @@ def update_order_status():
 @app.route('/admin/awaiting_refund')
 def admin_awaiting_refund():
     if 'admin_id' not in session: return redirect(url_for('index'))
-    with sqlite3.connect(DATABASE) as conn:
+    with get_db_connection() as conn:
         awaiting_refund_orders = conn.execute('''
             SELECT o.id, c.name, o.total, o.order_date
             FROM orders o JOIN customers c ON o.customer_id = c.id
@@ -377,7 +390,7 @@ def admin_products():
     # --- New Filter ---
     filter_stock = request.args.get('filter_stock', '')
 
-    with sqlite3.connect(DATABASE) as conn:
+    with get_db_connection() as conn:
         query = 'SELECT id, name, description, price, stock, image_url FROM products'
         params = []
 
@@ -393,7 +406,7 @@ def admin_products():
 def add_product():
     if 'admin_id' not in session: return redirect(url_for('index'))
     form = request.form
-    with sqlite3.connect(DATABASE) as conn:
+    with get_db_connection() as conn:
         conn.execute('INSERT INTO products (name, description, price, stock, image_url) VALUES (?, ?, ?, ?, ?)',
                   (form['name'], form['description'], form['price'], form['stock'], form['image_url']))
         conn.commit()
@@ -403,7 +416,7 @@ def add_product():
 @app.route('/admin/edit_product/<int:product_id>')
 def edit_product(product_id):
     if 'admin_id' not in session: return redirect(url_for('index'))
-    with sqlite3.connect(DATABASE) as conn:
+    with get_db_connection() as conn:
         product = conn.execute('SELECT id, name, description, price, stock, image_url FROM products WHERE id = ?', (product_id,)).fetchone()
     if not product:
         flash('Product not found.', 'error')
@@ -414,7 +427,7 @@ def edit_product(product_id):
 def update_product():
     if 'admin_id' not in session: return redirect(url_for('index'))
     form = request.form
-    with sqlite3.connect(DATABASE) as conn:
+    with get_db_connection() as conn:
         conn.execute('UPDATE products SET name=?, description=?, price=?, stock=?, image_url=? WHERE id=?',
                   (form['name'], form['description'], form['price'], form['stock'], form['image_url'], form['product_id']))
         conn.commit()
@@ -425,7 +438,7 @@ def update_product():
 def delete_product():
     if 'admin_id' not in session: return redirect(url_for('index'))
     product_id = request.form['product_id']
-    with sqlite3.connect(DATABASE) as conn:
+    with get_db_connection() as conn:
         conn.execute('DELETE FROM products WHERE id = ?', (product_id,))
         conn.commit()
     flash(f'Product ID #{product_id} deleted.', 'success')
@@ -435,8 +448,8 @@ def delete_product():
 def admin_customers():
     if 'admin_id' not in session:
         return redirect(url_for('index'))
-    
-    with sqlite3.connect(DATABASE) as conn:
+
+    with get_db_connection() as conn:
         customers = conn.execute('SELECT id, name, username, contact, address FROM customers ORDER BY id').fetchall()
         
     return render_template('admin_customers_list.html', customers=customers)
@@ -446,20 +459,19 @@ def admin_customer_detail(customer_id):
     if 'admin_id' not in session:
         return redirect(url_for('index'))
 
-    with sqlite3.connect(DATABASE) as conn:
-        c = conn.cursor()
-        customer = c.execute('SELECT id, name, username, contact, address FROM customers WHERE id = ?', (customer_id,)).fetchone()
+    with get_db_connection() as conn:
+        customer = conn.execute('SELECT id, name, username, contact, address FROM customers WHERE id = ?', (customer_id,)).fetchone()
         if not customer:
             flash('Customer not found.', 'error')
             return redirect(url_for('admin_customers'))
 
         # Fetch all orders for this specific customer
-        orders = c.execute('SELECT id, order_date, total, status FROM orders WHERE customer_id = ? ORDER BY id DESC', (customer_id,)).fetchall()
-        
+        orders = conn.execute('SELECT id, order_date, total, status FROM orders WHERE customer_id = ? ORDER BY id DESC', (customer_id,)).fetchall()
+
         # --- New Customer Analytics Calculation ---
         customer_analytics = {}
         # 1. Total Money Spent (Lifetime Value)
-        total_spent = c.execute("SELECT SUM(total) FROM orders WHERE customer_id = ? AND status != 'Cancelled'", (customer_id,)).fetchone()[0] or 0
+        total_spent = conn.execute("SELECT SUM(total) FROM orders WHERE customer_id = ? AND status != 'Cancelled'", (customer_id,)).fetchone()[0] or 0
         customer_analytics['total_spent'] = total_spent
         
         # 2. Total Orders Placed
@@ -482,12 +494,10 @@ def admin_reports():
 
     date_range = request.args.get('range', '7days')
 
-    with sqlite3.connect(DATABASE) as conn:
-        c = conn.cursor()
-        
+    with get_db_connection() as conn:
         # --- Top Selling & Chart Logic (No Changes) ---
         # ... (Your existing correct logic for top_products, sales_chart_data, pie_chart_data) ...
-        top_selling_products = c.execute('''
+        top_selling_products = conn.execute('''
             SELECT p.name, SUM(CAST(je.value AS INTEGER)) as total_sold
             FROM orders o, json_each(o.items) je
             JOIN products p ON p.id = CAST(je.key AS INTEGER)
@@ -510,8 +520,8 @@ def admin_reports():
             for i in range(days):
                 day = start_date + timedelta(days=i)
                 sales_data_dict[day.strftime("%Y-%m-%d")] = 0
-            
-            daily_sales_data = c.execute(
+
+            daily_sales_data = conn.execute(
                 "SELECT order_date, SUM(total) FROM orders WHERE order_date >= ? AND status != 'Cancelled' GROUP BY order_date",
                 (start_date.strftime("%Y-%m-%d"),)
             ).fetchall()
@@ -526,7 +536,7 @@ def admin_reports():
         
         all_statuses = ['Order Received', 'Shipped', 'In Transit', 'Delivered', 'Cancelled']
         status_counts = {status: 0 for status in all_statuses}
-        status_distribution_from_db = c.execute('SELECT status, COUNT(id) FROM orders GROUP BY status').fetchall()
+        status_distribution_from_db = conn.execute('SELECT status, COUNT(id) FROM orders GROUP BY status').fetchall()
         for status, count in status_distribution_from_db:
             if status in status_counts:
                 status_counts[status] = count
@@ -534,12 +544,12 @@ def admin_reports():
 
         # --- CORRECTED Payment Method Distribution ---
         # 1. Get the total count of ONLY non-cancelled orders
-        total_valid_orders = c.execute(
+        total_valid_orders = conn.execute(
             "SELECT COUNT(id) FROM orders WHERE status != 'Cancelled'"
         ).fetchone()[0] or 1
         
         # 2. Get the payment method counts for ONLY non-cancelled orders
-        payment_data_from_db = c.execute('''
+        payment_data_from_db = conn.execute('''
             SELECT payment_method, COUNT(id) 
             FROM orders 
             WHERE status != 'Cancelled' 
@@ -576,9 +586,7 @@ def admin_aov_report():
     if 'admin_id' not in session:
         return redirect(url_for('index'))
 
-    with sqlite3.connect(DATABASE) as conn:
-        c = conn.cursor()
-        
+    with get_db_connection() as conn:
         # --- AOV 12-Month Trend Calculation ---
         aov_by_month = {}
         today = datetime.now()

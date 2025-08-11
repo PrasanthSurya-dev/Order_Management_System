@@ -123,6 +123,7 @@ INSERT INTO orders (id, customer_id, items, total, payment_method, delivery_date
 (32, 3, '{"5": 1}', 2200.00, 'UPI', '2025-08-10', 'Cancelled', '2025-08-06 22:40:56.607410+00', '2025-08-06', NULL, 'Refund initiated successfully to your account.'),
 (33, 17, '{"4": 1}', 1200.00, 'Debit Card', '2025-08-10', 'Cancelled', '2025-08-06 23:21:22.828540+00', '2025-08-06', NULL, 'Refund initiated successfully to your account.'),
 (34, 22, '{"8": 1}', 1600.00, 'Credit Card', '2025-08-11', 'Cancelled', '2025-08-07 22:57:41.453664+00', '2025-08-07', NULL, 'Refund initiated successfully to your account.');
+(35, 1, '{"13": 1}', 189999.0, 'Debit Card', '2025-08-15', 'Cancelled', '2025-08-11T20:50:42.918164', '2025-08-11', NULL, 'Refund initiated successfully to your account.');
 
 -- After running manual inserts in PostgreSQL, you must update the sequences
 -- so the next auto-generated ID is correct.

@@ -71,10 +71,13 @@ cd orderlla-oms
 
 ### 3  Create a Virtual Environment
 ```bash
+# Create the environment
 python -m venv .venv
-# Windows
+
+# Activate the environment
+# On Windows:
 .venv\Scripts\activate
-# macOS/Linux
+# On Mac/Linux:
 source .venv/bin/activate
 ```
 
@@ -91,7 +94,14 @@ sqlite3 database.db < populate_data.sql
 Get-Content populate_data.sql | sqlite3 database.db
 ```
 
-### 6  Run the Application
+### 6 Database Initialization (one-time)
+```bash 
+sqlite3 database.db < populate_data.sql
+# PowerShell:
+Get-Content populate_data.sql | sqlite3 database.db
+```
+
+### 7  Run the Application
 ```bash
 python app.py
 ```

@@ -507,7 +507,7 @@ def admin_reports():
 
         sales_data_dict = {}
         if date_range == 'all':
-            all_sales = c.execute('''
+            all_sales = conn.execute('''
                 SELECT strftime('%Y-%m', order_date) as month, SUM(total)
                 FROM orders WHERE status != 'Cancelled' AND order_date IS NOT NULL
                 GROUP BY month ORDER BY month
@@ -593,8 +593,8 @@ def admin_aov_report():
         for i in range(12):
             current_month = today - timedelta(days=i * 30) # Approximate month steps
             month_key = current_month.strftime('%Y-%m')
-            
-            month_data = c.execute('''
+
+            month_data = conn.execute('''
                 SELECT SUM(total), COUNT(id) FROM orders 
                 WHERE strftime('%Y-%m', order_date) = ? AND status != 'Cancelled'
             ''', (month_key,)).fetchone()

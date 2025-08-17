@@ -1,1 +1,1 @@
-web: gunicorn --worker-tmp-dir /tmp app:app
+web: gunicorn app:app

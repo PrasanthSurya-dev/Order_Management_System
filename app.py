@@ -11,11 +11,11 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 # App Configuration
 app = Flask(__name__)
 app.secret_key = 'a-very-strong-and-random-secret-key'
-DATABASE = 'database.db'
+DATABASE_URL = os.environ.get('DATABASE_URL') # This is provided by Railway
 
 # --- DATABASE INITIALIZATION ---
 def init_db():
-    with sqlite3.connect(DATABASE) as conn:
+    with get_db_connection() as conn:
         c = conn.cursor()
         c.execute('''CREATE TABLE IF NOT EXISTS customers (
             id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE NOT NULL, password TEXT NOT NULL,
@@ -33,15 +33,13 @@ def init_db():
         conn.commit()
 
 def get_db_connection():
-    # Render (and other hosts) sets a DATABASE_URL environment variable
-    db_url = os.environ.get('DATABASE_URL')
-    if db_url:
-        # Connect to the live PostgreSQL database
-        conn = psycopg2.connect(db_url)
+    """Establishes a connection to the correct database (PostgreSQL on Railway, SQLite locally)."""
+    if DATABASE_URL:
+        # Connect to the live PostgreSQL database on Railway
+        return psycopg2.connect(DATABASE_URL)
     else:
-        # Connect to the local SQLite database file
-        conn = sqlite3.connect(DATABASE)
-    return conn
+        # Fallback to local SQLite for your own testing
+        return sqlite3.connect('database.db')
 
 # --- BACKGROUND TASK ---
 def update_order_statuses():
@@ -614,7 +612,8 @@ def admin_aov_report():
 
 # --- START THE APP ---
 if __name__ == '__main__':
+    print("Starting Flask app in local debug mode...")
     init_db()
     migrate_old_orders()
     threading.Thread(target=update_order_statuses, daemon=True).start()
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=8080, debug=True)

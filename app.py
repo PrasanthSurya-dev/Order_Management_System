@@ -11,7 +11,11 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 # App Configuration
 app = Flask(__name__)
 app.secret_key = 'a-very-strong-and-random-secret-key'
-DATABASE_URL = os.environ.get('DATABASE_URL') # This is provided by Railway
+
+# Build DATABASE_URL manually for Supabase
+DATABASE_URL = (
+    "postgresql://postgres:gsAAswA5sK1q2NC7@db.ltbuxhvctkyivrvrzqyt.supabase.co:5432/postgres?sslmode=require"
+)
 
 # Helper function to determine database type
 def is_postgres():
@@ -19,12 +23,12 @@ def is_postgres():
 
 # --- DATABASE CONNECTION ---
 def get_db_connection():
-    """Establishes a connection to the correct database (PostgreSQL on Railway, SQLite locally)."""
+    """Connects to PostgreSQL (Supabase) or SQLite (local)."""
     if is_postgres():
         return psycopg2.connect(DATABASE_URL)
     else:
-        return sqlite3.connect('database.db')
-
+        return sqlite3.connect("database.db")
+    
 # --- DATABASE INITIALIZATION ---
 def init_db():
     # This function is now only for local SQLite setup.

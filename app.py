@@ -13,10 +13,13 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 app = Flask(__name__)
 app.secret_key = 'a-very-strong-and-random-secret-key'
 
-# Build DATABASE_URL manually for Supabase
-DATABASE_URL = (
-    "postgresql://postgres:gsAAswA5sK1q2NC7@db.ltbuxhvctkyivrvrzqyt.supabase.co:5432/postgres?sslmode=require"
-)
+# Securely gets the database URL from Heroku's environment variables
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+# This fallback allows you to still run the app on your local machine for testing
+if not DATABASE_URL:
+    print("DATABASE_URL not found, using local fallback value.")
+    DATABASE_URL = "postgresql://postgres:gsAAswA5sK1q2NC7@db.ltbuxhvctkyivrvrzqyt.supabase.co:5432/postgres?sslmode=require"
 
 # Helper function to determine database type
 def is_postgres():

@@ -11,7 +11,7 @@
 
 ## 🚀 Live Demo
 
-*(In Future)*
+**[https://orderlla-oms-4116a2547cd5.herokuapp.com/](https://orderlla-oms-4116a2547cd5.herokuapp.com/)**
 
 ---
 
@@ -44,13 +44,13 @@ Orderlla is a unified platform that gives businesses complete control over their
 
 | Layer         | Technologies                                  |
 |---------------|-----------------------------------------------|
-| **Backend**   | Python 3.8+ & Flask 2.x, SQLAlchemy           |
-| **Database**  | SQLite (development) → PostgreSQL (production)|
+| **Backend**   | Python 3.13 & Flask 2.x,                      |
+| **Database**  | SQLite (development) → PostgreSQL (on Supabase for production)|
+| **Database Drivers**| `sqlite3` (built-in), `psycopg2` (for PostgreSQL) |
 | **Frontend**  | HTML5, CSS3, Vanilla JavaScript (Fetch API)  |
 | **Templating**| Jinja2                                        |
 | **Charting**  | Chart.js                                      |
-| **Security**  | Werkzeug password hashing, Flask sessions     |
-| **Deployment**| Render / Heroku, Gunicorn, Nginx             |
+| **Deployment**| Heroku, Gunicorn                              |
 
 ---
 
@@ -64,50 +64,45 @@ Orderlla is a unified platform that gives businesses complete control over their
 
 ### Installation & Setup
 
-```bash
-git clone https://github.com/<your-username>/orderlla-oms.git
-cd orderlla-oms
-```
+1.  **Clone the repository**
+    ```bash
+    # TODO: Replace <your-username> with your actual GitHub username
+    git clone [https://github.com/](https://github.com/)<your-username>/orderlla-oms.git
+    cd orderlla-oms
+    ```
 
-### 3  Create a Virtual Environment
-```bash
-# Create the environment
-python -m venv .venv
+2.  **Create and activate a virtual environment**
+    ```bash
+    # Create the environment
+    python -m venv .venv
+    # Activate on Windows: .venv\Scripts\activate
+    # Activate on Mac/Linux: source .venv/bin/activate
+    ```
 
-# Activate the environment
-# On Windows:
-.venv\Scripts\activate
-# On Mac/Linux:
-source .venv/bin/activate
-```
+3.  **Install dependencies**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-### 4  Install Dependencies
-```bash
-pip install -r requirements.txt
-```
+4.  **Set up and seed the local database**
+    *(This requires a `populate_data.sql` file in your root directory.)*
 
-### 5  Set Up the Database
-```bash
-# Creates database.db and seeds sample data
-sqlite3 database.db < populate_data.sql
-# PowerShell alternative
-Get-Content populate_data.sql | sqlite3 database.db
-```
+    Run the command below that matches your terminal.
 
-### 6 Database Initialization (one-time)
-```bash 
-sqlite3 database.db < populate_data.sql
-# PowerShell:
-Get-Content populate_data.sql | sqlite3 database.db
-```
+    ```bash
+    # If you are on Mac, Linux, or the old Windows Command Prompt (cmd.exe), use this:
+    sqlite3 database.db < populate_data.sql
 
-### 7  Run the Application
-```bash
-python app.py
-```
+    # If you are on the modern Windows PowerShell, use this instead:
+    Get-Content populate_data.sql | sqlite3 database.db
+    ```
 
-Open your browser at **http://127.0.0.1:8080**  
-_Default admin: `admin` / `adminpass`
+6.  **Run the application**
+    ```bash
+    python app.py
+    ```
+    The app will be running at **http://127.0.0.1:8080**
+    _Default admin: `admin` / `adminpass`_
 
 ---
 
@@ -180,7 +175,7 @@ An at-a-glance dashboard with clickable KPI widgets linking to detailed, interac
 │ • Routes & Sessions │
 │ • Background Tasks  │
 └────────┬────────────┘
-         │ ORM (SQLAlchemy)
+         │ 
 ┌────────▼────────────┐
 │  SQLite / PostgreSQL│
 │  Tables:            │

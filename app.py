@@ -6,6 +6,7 @@ import threading
 import time
 from datetime import datetime, timedelta
 from collections import defaultdict
+from psycopg2.extras import Json
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 
 # App Configuration
@@ -51,6 +52,12 @@ def init_db():
         conn.commit()
         c.close()
 
+def ensure_dict(data):
+    """Convert JSON string to dict if needed (SQLite vs PostgreSQL)."""
+    if isinstance(data, str):
+        return json.loads(data)
+    return data
+
 # --- BACKGROUND TASK ---
 def update_order_statuses():
     """Background task to automatically mark 'In Transit' orders as 'Delivered'."""
@@ -94,6 +101,16 @@ def migrate_old_orders():
         conn.commit()
     c.close()
     conn.close()
+
+@app.route("/db_time")
+def db_time():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT NOW()")
+    db_time = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    return f"Database server time: {db_time}"
 
 # --- AUTHENTICATION ROUTES ---
 @app.route('/')
@@ -179,33 +196,66 @@ def get_products():
 
 @app.route('/get_orders')
 def get_orders():
-    if 'user_id' not in session: return jsonify([])
+    if 'user_id' not in session:
+        return jsonify([])
+
     conn = get_db_connection()
     c = conn.cursor()
     placeholder = '%s' if is_postgres() else '?'
-    c.execute(f'''SELECT id, items, total, payment_method, delivery_date, 
-                     status, actual_delivery_date, cancellation_refund 
-                     FROM orders WHERE customer_id={placeholder} ORDER BY id DESC''', (session['user_id'],))
+    c.execute(f'''
+        SELECT id, items, total, payment_method, delivery_date, 
+               status, actual_delivery_date, cancellation_refund 
+        FROM orders WHERE customer_id={placeholder} ORDER BY id DESC
+    ''', (session['user_id'],))
     orders_data = c.fetchall()
-    
+
+    # Map product_id → name
     c.execute("SELECT id, name FROM products")
     products_map = {p[0]: p[1] for p in c.fetchall()}
+
     c.close()
     conn.close()
 
     orders_list = []
     for r in orders_data:
-        items_dict = json.loads(r[1])
-        items_with_names = ", ".join([f"{products_map.get(int(pid), 'Unknown Product')} x {qty}" for pid, qty in items_dict.items()])
+        items_raw = r[1]
+        
+        # Handle PostgreSQL dict vs SQLite str
+        if isinstance(items_raw, str):
+            items_dict = json.loads(items_raw)  # SQLite
+        else:
+            items_dict = items_raw              # PostgreSQL already dict
+
+        items_with_names = ", ".join(
+            [f"{products_map.get(int(pid), 'Unknown Product')} x {qty}" 
+             for pid, qty in items_dict.items()]
+        )
+
+        # Fix for delivery date = None
+        delivery_date = r[4]
+        if delivery_date is None:
+            delivery_display = "Estimated delivery date"
+        else:
+            delivery_display = str(delivery_date)
+
         orders_list.append({
-            'id': r[0], 'items_text': items_with_names, 'total': float(r[2]), 'payment': r[3], 
-            'delivery': str(r[4]), 'status': r[5], 'actual_delivery': str(r[6]), 'cancellation_refund': r[7]
+            'id': r[0],
+            'items_text': items_with_names,
+            'total': float(r[2]),
+            'payment': r[3],
+            'delivery': delivery_display,
+            'status': r[5],
+            'actual_delivery': str(r[6]) if r[6] else "",
+            'cancellation_refund': r[7]
         })
+
     return jsonify(orders_list)
 
 @app.route('/place_order', methods=['POST'])
 def place_order():
-    if 'user_id' not in session: return jsonify({'status': 'fail'}), 403
+    if 'user_id' not in session:
+        return jsonify({'status': 'fail'}), 403
+
     data = request.get_json()
     order_date = datetime.now().strftime("%Y-%m-%d")
     delivery_date = (datetime.now() + timedelta(days=4)).strftime("%Y-%m-%d")
@@ -213,15 +263,31 @@ def place_order():
     conn = get_db_connection()
     c = conn.cursor()
     placeholder = '%s' if is_postgres() else '?'
+
+    # decrement stock
     for pid, qty in data['cart'].items():
-        c.execute(f'UPDATE products SET stock = stock - {placeholder} WHERE id = {placeholder}', (qty, pid))
-    
-    sql = f'INSERT INTO orders (customer_id, items, total, payment_method, delivery_date, status, order_date) VALUES ({placeholder}, {placeholder}, {placeholder}, {placeholder}, {placeholder}, {placeholder}, {placeholder})'
-    c.execute(sql, (session['user_id'], json.dumps(data['cart']), data['total'], data['payment'], delivery_date, "Order Received", order_date))
+        c.execute(
+            f'UPDATE products SET stock = stock - {placeholder} WHERE id = {placeholder}',
+            (int(qty), int(pid))
+        )
+
+    # JSON param for items
+    items_param = Json(data['cart']) if is_postgres() else json.dumps(data['cart'])
+
+    sql = (
+        f'INSERT INTO orders (customer_id, items, total, payment_method, delivery_date, status, order_date) '
+        f'VALUES ({placeholder}, {placeholder}, {placeholder}, {placeholder}, {placeholder}, {placeholder}, {placeholder})'
+    )
+    c.execute(sql, (
+        session['user_id'], items_param, data['total'], data['payment'],
+        delivery_date, "Order Received", order_date
+    ))
+
     conn.commit()
     c.close()
     conn.close()
     return jsonify({'status': 'success'})
+
 
 @app.route('/confirm_cancel/<int:order_id>')
 def confirm_cancel_order(order_id):
@@ -242,8 +308,13 @@ def process_cancellation():
     if not order_row:
         flash("Could not cancel order.", "error")
         return redirect(url_for('customer_dashboard') + '#orders')
-    
-    items, payment_method = json.loads(order_row[0]), order_row[1]
+    # Handle JSON column (SQLite = TEXT, PostgreSQL = JSON/JSONB → already dict)
+    items = order_row[0]
+    if isinstance(items, str):
+        items = json.loads(items)
+
+    payment_method = order_row[1]
+    # Restock items
     for pid, qty in items.items():
         c.execute(f'UPDATE products SET stock = stock + {placeholder} WHERE id = {placeholder}', (qty, pid))
     
@@ -318,68 +389,94 @@ def admin_dashboard():
 
 @app.route('/admin/orders')
 def admin_orders():
-    if 'admin_id' not in session: return redirect(url_for('index'))
-    search = request.args.get('search', '')
-    status_filter = request.args.get('status', '')
-    filter_date = request.args.get('filter_date', '')
-    filter_status = request.args.get('filter_status', '')
+    if 'admin_id' not in session:
+        return redirect(url_for('index'))
+
+    search = request.args.get('search', '').strip()
+    status_filter = request.args.get('status', '').strip()
+    filter_date = request.args.get('filter_date', '').strip()
+    filter_status = request.args.get('filter_status', '').strip()
 
     conn = get_db_connection()
     c = conn.cursor()
     placeholder = '%s' if is_postgres() else '?'
-    
-    query = 'SELECT o.id, c.name, o.items, c.address, o.payment_method, o.status, o.total FROM orders o JOIN customers c ON o.customer_id = c.id'
+
+    query = (
+        'SELECT o.id, c.name, o.items, c.address, o.payment_method, '
+        'o.status, o.total FROM orders o JOIN customers c ON o.customer_id = c.id'
+    )
     conditions = []
     params = []
-    
+
+    # Only add search conditions if a search value was provided
     if search:
         like_op = 'ILIKE' if is_postgres() else 'LIKE'
-        conditions.append(f"(c.name {like_op} {placeholder} OR o.id = {placeholder})")
-        params.extend([f'%{search}%', search])
-    
+        if search.isdigit():
+            conditions.append(f"(c.name {like_op} {placeholder} OR o.id = {placeholder})")
+            params.extend([f'%{search}%', int(search)])
+        else:
+            conditions.append(f"(c.name {like_op} {placeholder})")
+            params.append(f'%{search}%')
+
     if status_filter:
         conditions.append(f"o.status = {placeholder}")
         params.append(status_filter)
-    
+
     if filter_date == 'today':
         today_str = datetime.now().strftime("%Y-%m-%d")
         conditions.append(f"o.order_date = {placeholder}")
         params.append(today_str)
-        
+    elif filter_date == 'week':
+        start_date = (datetime.now().date() - timedelta(days=6)).strftime("%Y-%m-%d")
+        conditions.append(f"o.order_date >= {placeholder}")
+        params.append(start_date)
+    elif filter_date == 'month':
+        start_date = (datetime.now().date() - timedelta(days=29)).strftime("%Y-%m-%d")
+        conditions.append(f"o.order_date >= {placeholder}")
+        params.append(start_date)
+
     if filter_status == 'pending':
         conditions.append("o.status IN ('Order Received', 'Shipped', 'In Transit')")
 
     if conditions:
         query += " WHERE " + " AND ".join(conditions)
-    
+
     query += " ORDER BY o.id DESC"
-    
+
     c.execute(query, tuple(params))
     orders = c.fetchall()
     c.close()
     conn.close()
-    
-    return render_template('admin_orders.html', 
-                           orders=orders, 
-                           search_query=search, 
+
+    return render_template('admin_orders.html',
+                           orders=orders,
+                           search_query=search,
                            status_filter=status_filter)
+
 
 @app.route('/admin/order/<int:order_id>')
 def admin_order_detail(order_id):
-    if 'admin_id' not in session: return redirect(url_for('index'))
+    if 'admin_id' not in session:
+        return redirect(url_for('index'))
+
     conn = get_db_connection()
     c = conn.cursor()
     placeholder = '%s' if is_postgres() else '?'
     
-    sql = f'''SELECT o.id, o.items, o.total, o.payment_method, o.delivery_date, 
-                     o.status, c.name, c.address, c.contact, o.actual_delivery_date, o.cancellation_refund 
-                     FROM orders o JOIN customers c ON o.customer_id = c.id 
-                     WHERE o.id = {placeholder}'''
+    sql = f'''
+        SELECT o.id, o.items, o.total, o.payment_method, o.delivery_date, 
+               o.status, c.name, c.address, c.contact, 
+               o.actual_delivery_date, o.cancellation_refund 
+        FROM orders o 
+        JOIN customers c ON o.customer_id = c.id 
+        WHERE o.id = {placeholder}
+    '''
     c.execute(sql, (order_id,))
     order = c.fetchone()
-    
+
     c.execute('SELECT id, name FROM products')
     products = c.fetchall()
+
     c.close()
     conn.close()
 
@@ -387,9 +484,22 @@ def admin_order_detail(order_id):
         flash(f"Order ID {order_id} not found.", "error")
         return redirect(url_for('admin_orders'))
 
+    # Map product IDs to names
     product_map = {p[0]: p[1] for p in products}
-    items = [{'name': product_map.get(int(pid), "Unknown"), 'quantity': qty} for pid, qty in json.loads(order[1]).items()]
-    
+
+    # Ensure JSON/dict compatibility for items
+    raw_items = order[1]
+    if isinstance(raw_items, str):  # SQLite case
+        raw_items = json.loads(raw_items)
+    elif raw_items is None:
+        raw_items = {}
+    # PostgreSQL json/jsonb is already dict
+
+    items = [
+        {'name': product_map.get(int(pid), "Unknown"), 'quantity': qty}
+        for pid, qty in raw_items.items()
+    ]
+
     return render_template('admin_order_detail.html', order=order, items=items)
 
 @app.route('/admin/order/update_status', methods=['POST'])
@@ -536,15 +646,32 @@ def delete_product():
 
 @app.route('/admin/customers')
 def admin_customers():
-    if 'admin_id' not in session:
+    if 'admin_id' not in session:  # adjust based on your auth
         return redirect(url_for('index'))
+
+    search = request.args.get('search', '')  # get search query
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute('SELECT id, name, username, contact, address FROM customers ORDER BY id')
+    placeholder = '%s' if is_postgres() else '?'
+
+    if search:
+        query = f"""
+            SELECT id, name, username, contact, address
+            FROM customers
+            WHERE name ILIKE {placeholder} 
+               OR username ILIKE {placeholder}
+               OR contact ILIKE {placeholder}
+               OR address ILIKE {placeholder}
+        """
+        c.execute(query, (f'%{search}%', f'%{search}%', f'%{search}%', f'%{search}%'))
+    else:
+        c.execute("SELECT id, name, username, contact, address FROM customers")
+
     customers = c.fetchall()
     c.close()
     conn.close()
-    return render_template('admin_customers_list.html', customers=customers)
+
+    return render_template('admin_customers_list.html', customers=customers, search=search)
 
 @app.route('/admin/customer/<int:customer_id>')
 def admin_customer_detail(customer_id):

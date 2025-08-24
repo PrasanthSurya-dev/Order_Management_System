@@ -4,6 +4,16 @@
 {% block page_title %}All Customers{% endblock %}
 
 {% block content %}
+    <form method="get" action="{{ url_for('admin_customers') }}" class="customer-search-bar">
+        <div class="customer-search-group">
+            <input type="text" name="search"
+                   placeholder="Search by ID, Name, Username, Contact, or Address"
+                   value="{{ search_query or '' }}">
+            <button type="submit">Search</button>
+            <a href="{{ url_for('admin_customers') }}" class="customer-reset-link">Reset</a>
+        </div>
+    </form>
+
     <div class="table-container">
         <table>
             <thead>
@@ -24,6 +34,8 @@
                     <td>{{ customer[3] }}</td>
                     <td>{{ customer[4] }}</td>
                 </tr>
+                {% else %}
+                <tr><td colspan="5">No customers found.</td></tr>
                 {% endfor %}
             </tbody>
         </table>

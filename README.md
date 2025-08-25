@@ -58,17 +58,17 @@ Orderlla is a unified platform that gives businesses complete control over their
 
 ### Prerequisites
 
-- Python 3.8+  
-- Git  
-- SQLite 3 command-line tool  
+- Python 3.8+
+- Git
+- SQLite 3 command-line tool
 
 ### Installation & Setup
 
 1.  **Clone the repository**
     ```bash
     # TODO: Replace <your-username> with your actual GitHub username
-    git clone [https://github.com/](https://github.com/)<your-username>/orderlla-oms.git
-    cd orderlla-oms
+    git clone https://github.com/your-username/your-repository-name.git
+    cd your-repository-name
     ```
 
 2.  **Create and activate a virtual environment**
@@ -85,25 +85,24 @@ Orderlla is a unified platform that gives businesses complete control over their
     ```
 
 4.  **Set up and seed the local database**
-    *(This requires a `populate_data.sql` file in your root directory.)*
+    *(This requires the `populate_sqlite.sql` file in your root directory.)*
 
     Run the command below that matches your terminal.
 
     ```bash
     # If you are on Mac, Linux, or the old Windows Command Prompt (cmd.exe), use this:
-    sqlite3 database.db < populate_data.sql
+    sqlite3 database.db < populate_sqlite.sql
 
     # If you are on the modern Windows PowerShell, use this instead:
-    Get-Content populate_data.sql | sqlite3 database.db
+    Get-Content populate_sqlite.sql | sqlite3 database.db
     ```
 
-6.  **Run the application**
+5.  **Run the application**
     ```bash
     python app.py
     ```
-    The app will be running at **http://127.0.0.1:8080**
+    The app will be running at **http://122.0.0.1:8080**
     _Default admin: `admin` / `adminpass`_
-
 ---
 
 ## 📖 Usage Examples
